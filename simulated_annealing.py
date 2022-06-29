@@ -73,6 +73,8 @@ def simulated_annealing(extra_inputs, iterations, runs,
                         acceptance_rule,
                         acceptance_parameter_generator,
                         end_cost=None,
+                        store_cost=None,
+                        store=None,
                         verbose=False):
     if verbose:
         if runs == 1:
@@ -81,6 +83,12 @@ def simulated_annealing(extra_inputs, iterations, runs,
             outer_verbose, inner_verbose = True, False
     else:
         outer_verbose, inner_verbose = False, False
+
+    if (store_cost is None) and (not (store is None)):
+        raise ValueError
+
+    if (not (store_cost is None)) and (store is None):
+        raise ValueError
 
     best_cost = float('inf')
     for run in range(runs):
@@ -95,6 +103,8 @@ def simulated_annealing(extra_inputs, iterations, runs,
                              acceptance_rule,
                              acceptance_parameter_generator,
                              verbose=inner_verbose)
+        if (not (store_cost is None)) and cost <= store_cost:
+            store.append([cost, state])
         if cost < best_cost:
             best_state, best_cost, best_costs = state, cost, costs
         if (not (end_cost is None)) and (best_cost <= end_cost):
@@ -102,10 +112,21 @@ def simulated_annealing(extra_inputs, iterations, runs,
             break
     return best_state, best_cost, best_costs
 
-def anneal(J, h, c, iterations, runs, end_cost=None, verbose=False):
+def anneal(J, h, c, iterations, runs, end_cost=None, store_cost=None, \
+    verbose=False):
+
+    if (not (store_cost is None)):
+        store = []
+    else:
+        store = None
+
     state, cost, costs = simulated_annealing((J, h, c), iterations, runs, \
         initial_state, ising_cost, ising_neighbour, boltzmann_acceptance_rule, \
-        temperature_schedule, end_cost=end_cost, verbose=verbose)
+        temperature_schedule, end_cost=end_cost, store_cost=store_cost, \
+        store=store, verbose=verbose)
 
-    return state, cost, costs
+    if (not (store_cost is None)):
+        return state, cost, costs, store
+    else:
+        return state, cost, costs
     
