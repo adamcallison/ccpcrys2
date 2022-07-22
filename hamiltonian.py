@@ -177,7 +177,7 @@ def triplet_hamiltonian(variable1_idx, variable2_idx, variable3_idx, \
     return J, h, c
 
 def hamiltonian(variable_count, variable_bit_count, triplet_refls, \
-    triplet_signs, triplet_weights=None):
+    triplet_signs, triplet_weights=None, verbose=False):
     if triplet_weights is None:
         triplet_weights = [1.0 for t in triplet_refls]
 
@@ -187,6 +187,8 @@ def hamiltonian(variable_count, variable_bit_count, triplet_refls, \
         triplet_count)
 
     for j, triplet in enumerate(triplet_refls):
+        if verbose:
+            print(f"Processing triplet {j+1} of {triplet_count}...   ", end="\r")
         triplet_idx = j
         variable1_idx, variable2_idx, variable3_idx = tuple(triplet)
         variable1_sign, variable2_sign, variable3_sign = tuple(triplet_signs[j])

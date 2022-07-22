@@ -51,7 +51,7 @@ def simulated_annealing_run(extra_inputs, iterations,
     for iteration in range(iterations):
         if verbose:
             pc = 100*(iteration)/iterations
-            print(f"{pc:.2f}% complete.", end="\r")
+            print(f"{pc:.2f}% complete. Starting_cost={costs[0]}. Current cost={costs[iteration]}.", end="\r")
 
         acceptance_parameter = acceptance_parameter_generator(extra_inputs, \
             iterations, iteration)
