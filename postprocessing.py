@@ -1,9 +1,21 @@
 import numpy as np
 
 def state_to_ints(state, variable_bit_count, triplet_count):
-    sum_piece = state[-triplet_count:][::-1]
-    sum_piece = [(0 if x == 1 else 1) for x in sum_piece]
-    state = state[:-triplet_count]
+    sum_piece = state[-2*triplet_count:][::-1]
+    sum_piece_processed = []
+    for j in range(triplet_count):
+        if (sum_piece[(2*j)], sum_piece[(2*j)+1]) == (1, 1):
+            sum_piece_processed.append(0)
+        elif (sum_piece[(2*j)], sum_piece[(2*j)+1]) == (1, -1):
+            sum_piece_processed.append(1)
+        elif (sum_piece[(2*j)], sum_piece[(2*j)+1]) == (-1, 1):
+            sum_piece_processed.append(2)
+        elif (sum_piece[(2*j)], sum_piece[(2*j)+1]) == (-1, -1):
+            sum_piece_processed.append(3)
+        else:
+            raise ValueError
+    sum_piece = sum_piece_processed
+    state = state[:-2*triplet_count]
 
     assert len(state) % variable_bit_count == 0
 
@@ -31,7 +43,7 @@ def state_to_phases(state, variable_bit_count, triplet_count):
 
     phases = 2*np.pi*( (variable_ints/N) + (1/(2*N)))
 
-    sum_targets = 2*np.pi*(sum_piece + 1)
+    sum_targets = 2*np.pi*sum_piece
 
     return phases, sum_targets
 

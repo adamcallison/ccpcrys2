@@ -1,14 +1,35 @@
 import numpy as np
 
-def total_spins(variable_count, variable_bit_count, triplet_count):
+def total_spins_old(variable_count, variable_bit_count, triplet_count):
     return (variable_bit_count*variable_count) + triplet_count
 
-def spin_index(variable_idx, bit_idx, variable_count, variable_bit_count, \
+def total_spins(variable_count, variable_bit_count, triplet_count):
+    return (variable_bit_count*variable_count) + (2*triplet_count)
+
+def spin_index_old(variable_idx, bit_idx, variable_count, variable_bit_count, \
     triplet_count):
     if (type(bit_idx) is str) and (bit_idx.lower() == 'triplet'):
         num_spins = total_spins(variable_count, variable_bit_count, \
             triplet_count)
         spin_idx = num_spins - (variable_idx+1)
+    elif (type(bit_idx) is int) and (bit_idx >= 0) and \
+        (bit_idx < variable_bit_count):
+        spin_idx = (variable_bit_count*variable_idx) + bit_idx
+    else:
+        raise ValueError
+    return spin_idx
+
+def spin_index(variable_idx, bit_idx, variable_count, variable_bit_count, \
+    triplet_count):
+    if (type(bit_idx) is tuple) and (bit_idx[0].lower() == 'triplet'):
+        num_spins = total_spins(variable_count, variable_bit_count, \
+            triplet_count)
+        if bit_idx[1] == 0:
+            spin_idx = num_spins - ((2*variable_idx)+2)
+        elif bit_idx[1] == 1:
+            spin_idx = num_spins - ((2*variable_idx)+1)
+        else:
+            raise ValueError
     elif (type(bit_idx) is int) and (bit_idx >= 0) and \
         (bit_idx < variable_bit_count):
         spin_idx = (variable_bit_count*variable_idx) + bit_idx
@@ -56,8 +77,11 @@ def variable_times_variable(variable1_idx, variable2_idx, variable1_sign, \
 def variable_times_sum(variable_idx, variable_sign, variable_bit_count, \
     variable_count, triplet_idx, triplet_count):
 
-    t_spin = spin_index(triplet_idx, 'triplet', variable_count, \
+    t_spin0 = spin_index(triplet_idx, ('triplet', 0), variable_count, \
         variable_bit_count, triplet_count)
+    t_spin1 = spin_index(triplet_idx, ('triplet', 1), variable_count, \
+        variable_bit_count, triplet_count)
+
 
     v_spins = tuple(
         spin_index(variable_idx, bit_idx, variable_count, variable_bit_count, \
@@ -68,12 +92,16 @@ def variable_times_sum(variable_idx, variable_sign, variable_bit_count, \
 
     c += 3.0
 
-    h[t_spin] = h.get(t_spin, 0.0) - 1
+    h[t_spin0] = h.get(t_spin0, 0.0) - 1
+    h[t_spin1] = h.get(t_spin1, 0.0) - 2
     for j in range(variable_bit_count):
         h[v_spins[j]] = h.get(v_spins[j], 0.0) - 3*variable_sign*(2**j)/(2**variable_bit_count)
         coeff = variable_sign*(2**j)/(2**variable_bit_count)
-        J[(v_spins[j], t_spin)] = J.get((v_spins[j], t_spin), 0.0) + 0.5*coeff
-        J[(t_spin, v_spins[j])] = J.get((t_spin, v_spins[j]), 0.0) + 0.5*coeff
+        J[(v_spins[j], t_spin0)] = J.get((v_spins[j], t_spin0), 0.0) + 0.5*coeff
+        J[(t_spin0, v_spins[j])] = J.get((t_spin0, v_spins[j]), 0.0) + 0.5*coeff
+        coeff = variable_sign*(2**j)/(2**(variable_bit_count-1))
+        J[(v_spins[j], t_spin1)] = J.get((v_spins[j], t_spin1), 0.0) + 0.5*coeff
+        J[(t_spin1, v_spins[j])] = J.get((t_spin1, v_spins[j]), 0.0) + 0.5*coeff
 
     J = {key: (np.pi**2)*val for key, val in J.items()}
     h = {key: (np.pi**2)*val for key, val in h.items()}
@@ -83,13 +111,19 @@ def variable_times_sum(variable_idx, variable_sign, variable_bit_count, \
 def sum_times_sum(variable_bit_count, variable_count, triplet_idx, \
     triplet_count):
 
-    t_spin = spin_index(triplet_idx, 'triplet', variable_count, \
+    t_spin0 = spin_index(triplet_idx, ('triplet', 0), variable_count, \
+        variable_bit_count, triplet_count)
+    t_spin1 = spin_index(triplet_idx, ('triplet', 1), variable_count, \
         variable_bit_count, triplet_count)
 
     J, h, c = {}, {}, 0.0
 
-    c += 10.0
-    h[t_spin] = h.get(t_spin, 0.0) - 6
+    c += 14.0
+    h[t_spin0] = h.get(t_spin0, 0.0) - 6
+    h[t_spin1] = h.get(t_spin1, 0.0) - 12
+
+    J[(t_spin0, t_spin1)] = J.get((t_spin0, t_spin1), 0.0) + 0.5*4
+    J[(t_spin1, t_spin0)] = J.get((t_spin1, t_spin0), 0.0) + 0.5*4
 
     J = {key: (np.pi**2)*val for key, val in J.items()}
     h = {key: (np.pi**2)*val for key, val in h.items()}
