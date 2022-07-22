@@ -207,6 +207,15 @@ def merge_dict_by_sum(d1, d2):
             d[key] = val
     return d
 
+def merge_dict_by_diff(d1, d2):
+    d = dict(d1)
+    for key, val in d2.items():
+        try:
+            d[key] -= val
+        except KeyError:
+            d[key] = -val
+    return d
+
 def triplet_hamiltonian_old(variable1_idx, variable2_idx, variable3_idx, \
     variable1_sign, variable2_sign, variable3_sign, variable_count, \
     variable_bit_count, triplet_idx, triplet_count):
@@ -323,56 +332,69 @@ def triplet_hamiltonian(variable1_idx, variable2_idx, variable3_idx, \
     # t1t2
     Jterm, hterm, cterm = variable_times_variable(variable1_idx, \
         variable2_idx, variable1_sign, variable2_sign, variable_bit_count, variable_count, triplet_count)
-    #J += Jterm
-    #h += hterm
+    #J += 2*Jterm
+    #h += 2*hterm
+    Jterm = {key:2*val for key, val in Jterm.items()}
+    hterm = {key:2*val for key, val in hterm.items()}
     J = merge_dict_by_sum(J, Jterm)
     h = merge_dict_by_sum(h, hterm)
-    c += cterm
+    c += 2*cterm
 
     # t1t3
     Jterm, hterm, cterm = variable_times_variable(variable1_idx, \
         variable3_idx, variable1_sign, variable3_sign, variable_bit_count, variable_count, triplet_count)
-    #J += Jterm
-    #h += hterm
+    #J += 2*Jterm
+    #h += 2*hterm
+    Jterm = {key:2*val for key, val in Jterm.items()}
+    hterm = {key:2*val for key, val in hterm.items()}
     J = merge_dict_by_sum(J, Jterm)
     h = merge_dict_by_sum(h, hterm)
-    c += cterm
+    c += 2*cterm
 
     # t2t3
     Jterm, hterm, cterm = variable_times_variable(variable2_idx, \
         variable3_idx, variable2_sign, variable3_sign, variable_bit_count, variable_count, triplet_count)
-    #J += Jterm
-    #h += hterm
+    #J += 2*Jterm
+    #h += 2*hterm
+    Jterm = {key:2*val for key, val in Jterm.items()}
+    hterm = {key:2*val for key, val in hterm.items()}
     J = merge_dict_by_sum(J, Jterm)
     h = merge_dict_by_sum(h, hterm)
-    c += cterm
+    c += 2*cterm
 
     #t1t
     Jterm, hterm, cterm = variable_times_sum(variable1_idx, variable1_sign, \
         variable_bit_count, variable_count, triplet_idx, triplet_count)
-    #J += Jterm
-    #h += hterm
-    J = merge_dict_by_sum(J, Jterm)
-    h = merge_dict_by_sum(h, hterm)
-    c += cterm
+    #J -= 2*Jterm
+    #h -= 2*hterm
+    Jterm = {key:2*val for key, val in Jterm.items()}
+    hterm = {key:2*val for key, val in hterm.items()}
+    J = merge_dict_by_diff(J, Jterm)
+    h = merge_dict_by_diff(h, hterm)
+    c -= 2*cterm
+
 
     #t2t
     Jterm, hterm, cterm = variable_times_sum(variable2_idx,  variable2_sign, \
         variable_bit_count, variable_count, triplet_idx, triplet_count)
-    #J += Jterm
-    #h += hterm
-    J = merge_dict_by_sum(J, Jterm)
-    h = merge_dict_by_sum(h, hterm)
-    c += cterm
+    #J -= 2*Jterm
+    #h -= 2*hterm
+    Jterm = {key:2*val for key, val in Jterm.items()}
+    hterm = {key:2*val for key, val in hterm.items()}
+    J = merge_dict_by_diff(J, Jterm)
+    h = merge_dict_by_diff(h, hterm)
+    c -= 2*cterm
 
     #t3t
     Jterm, hterm, cterm = variable_times_sum(variable3_idx,  variable3_sign, \
         variable_bit_count, variable_count, triplet_idx, triplet_count)
-    #J += Jterm
-    #h += hterm
-    J = merge_dict_by_sum(J, Jterm)
-    h = merge_dict_by_sum(h, hterm)
-    c += cterm
+    #J -= 2*Jterm
+    #h -= 2*hterm
+    Jterm = {key:2*val for key, val in Jterm.items()}
+    hterm = {key:2*val for key, val in hterm.items()}
+    J = merge_dict_by_diff(J, Jterm)
+    h = merge_dict_by_diff(h, hterm)
+    c -= 2*cterm
 
     #tt
     Jterm, hterm, cterm = sum_times_sum(variable_bit_count, variable_count, \
@@ -440,6 +462,9 @@ def hamiltonian(variable_count, variable_bit_count, triplet_refls, \
         J = merge_dict_by_sum(J, Jt)
         h = merge_dict_by_sum(h, ht)
         c += triplet_weights[j]*ct
+
+    J = {key:val for key, val in J.items() if not (val == 0.0) }
+    h = {key:val for key, val in h.items() if not (val == 0.0) }
 
     return J, h, c
 
