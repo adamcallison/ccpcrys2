@@ -434,6 +434,15 @@ def hamiltonian_old(variable_count, variable_bit_count, triplet_refls, \
 
     return J, h, c
 
+def ham_dicts_to_ham(nqubits, Jdict, hdict):
+    J = np.zeros((nqubits, nqubits), dtype=float)
+    h = np.zeros(nqubits, dtype=float)
+    for key, val in Jdict.items():
+        J[key[0], key[1]] = val
+    for key, val in hdict.items():
+        h[key[0]] = val
+    return J, h
+
 def hamiltonian(variable_count, variable_bit_count, triplet_refls, \
     triplet_signs, triplet_weights=None, verbose=False):
     if triplet_weights is None:
@@ -465,6 +474,11 @@ def hamiltonian(variable_count, variable_bit_count, triplet_refls, \
 
     J = {key:val for key, val in J.items() if not (val == 0.0) }
     h = {key:val for key, val in h.items() if not (val == 0.0) }
+
+
+    nqubits = total_spins(variable_count, variable_bit_count, triplet_count)
+
+    J, h = ham_dicts_to_ham(nqubits, J, h)
 
     return J, h, c
 
