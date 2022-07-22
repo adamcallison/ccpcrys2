@@ -16,11 +16,6 @@ def spin_index(variable_idx, bit_idx, variable_count, variable_bit_count, \
         raise ValueError
     return spin_idx
 
-def zero_hamiltonian(variable_count, variable_bit_count, triplet_count):
-    # has unnecessary inputs
-    J, h, c = {}, {}, 0.0
-    return J, h, c
-
 def variable_times_variable(variable1_idx, variable2_idx, variable1_sign, \
     variable2_sign, variable_bit_count, variable_count, triplet_count):
 
@@ -34,8 +29,7 @@ def variable_times_variable(variable1_idx, variable2_idx, variable1_sign, \
             triplet_count) for bit_idx in range(variable_bit_count)
     )
 
-    J, h, c = zero_hamiltonian(variable_count, variable_bit_count, \
-        triplet_count)
+    J, h, c = {}, {}, 0.0
 
     c += 1.0
 
@@ -70,8 +64,7 @@ def variable_times_sum(variable_idx, variable_sign, variable_bit_count, \
             triplet_count) for bit_idx in range(variable_bit_count)
     )
 
-    J, h, c = zero_hamiltonian(variable_count, variable_bit_count, \
-        triplet_count)
+    J, h, c = {}, {}, 0.0
 
     c += 3.0
 
@@ -93,8 +86,7 @@ def sum_times_sum(variable_bit_count, variable_count, triplet_idx, \
     t_spin = spin_index(triplet_idx, 'triplet', variable_count, \
         variable_bit_count, triplet_count)
 
-    J, h, c = zero_hamiltonian(variable_count, variable_bit_count, \
-        triplet_count)
+    J, h, c = {}, {}, 0.0
 
     c += 10.0
     h[t_spin] = h.get(t_spin, 0.0) - 6
@@ -126,8 +118,7 @@ def triplet_hamiltonian(variable1_idx, variable2_idx, variable3_idx, \
     variable1_sign, variable2_sign, variable3_sign, variable_count, \
     variable_bit_count, triplet_idx, triplet_count):
     
-    J, h, c = zero_hamiltonian(variable_count, variable_bit_count, \
-        triplet_count)
+    J, h, c = {}, {}, 0.0
 
     # t1t1
     Jterm, hterm, cterm = variable_times_variable(variable1_idx, \
@@ -230,8 +221,7 @@ def hamiltonian(variable_count, variable_bit_count, triplet_refls, \
 
     triplet_count = len(triplet_refls)
 
-    J, h, c = zero_hamiltonian(variable_count, variable_bit_count, \
-        triplet_count)
+    J, h, c = {}, {}, 0.0
 
     for j, triplet in enumerate(triplet_refls):
         if verbose:
