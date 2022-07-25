@@ -26,8 +26,22 @@ def optimize(J, h, c, time_limit=None, heuristic_frac=None, verbose=False):
         m.params.TimeLimit = time_limit
     if not (heuristic_frac is None):
         m.params.Heuristics = heuristic_frac
+
+
+    m.params.PoolSolutions = 1000
+    m.params.PoolSearchMode = 2
+
     m.optimize()
-    state_binary = np.array([x.X for x in b])
-    state = np.array(1 - (2*state_binary), dtype=int)
-    cost = np.dot(state, np.dot(J, state)) + np.dot(h, state) + c
-    return state, cost
+
+    sols = []
+    costs = []
+    solcount = m.SolCount
+    for j in range(solcount):
+        m.params.SolutionNumber = j
+        state = 1 - (2*np.array(m.Xn))
+        cost = np.dot(state, np.dot(J, state)) + np.dot(h, state) + c
+        sols.append(state)
+        costs.append(cost)
+    costs = np.array(costs)
+
+    return sols, costs
