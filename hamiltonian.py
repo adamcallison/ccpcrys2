@@ -245,7 +245,7 @@ def ham_dicts_to_ham(nqubits, Jdict, hdict):
     for key, val in Jdict.items():
         J[key[0], key[1]] = val
     for key, val in hdict.items():
-        h[key[0]] = val
+        h[key] = val
     return J, h
 
 def hamiltonian(variable_count, variable_bit_count, triplet_refls, \
