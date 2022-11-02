@@ -103,15 +103,17 @@ def simulated_annealing_run(extra_inputs, iterations,
     best_cost = float('inf')
     state = initial_state_generator(extra_inputs)
     cost = cost_function(extra_inputs, state)
-    costs = np.zeros(iterations+1, dtype=float)
-    costs[0] = cost
+    #costs = np.zeros(iterations+1, dtype=float)
+    costs = []
+    costs.append(cost)
     if verbose: last_print = -np.float('inf')
+    last_costsave = 0.0
     for iteration in range(iterations):
         if verbose:
             pc = 100*(iteration)/iterations
             if pc - last_print >= 0.999:
                 last_print = pc
-                print(f"{pc:.2f}% complete. Starting_cost={costs[0]}. Current cost={costs[iteration]}.", end="\r")
+                print(f"{pc:.2f}% complete. Starting_cost={costs[0]}. Current cost={cost}.", end="\r")
 
         acceptance_parameter = acceptance_parameter_generator(extra_inputs, acceptance_parameter_generator_inputs, \
             iterations, iteration)
@@ -123,7 +125,11 @@ def simulated_annealing_run(extra_inputs, iterations,
             state, cost = candidate_state, candidate_cost
             if cost < best_cost:
                 best_state, best_cost = state, cost
-        costs[iteration+1] = cost
+        pm = (iteration/iterations)*1000
+        if pm - last_costsave >= 1.0:
+            last_costsave = pm
+            costs.append(cost)
+    costs = np.array(costs)
     return best_state, best_cost, costs
 
 def simulated_annealing(extra_inputs, iterations, runs,
